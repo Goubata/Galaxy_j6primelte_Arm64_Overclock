@@ -1,19 +1,23 @@
-name: Build Android Kernel 3.18
+name: Build Kernel 3.18
 
 on:
   push:
     branches:
       - lineage-17.1-64
+  pull_request:
+    branches:
+      - lineage-17.1-64
+  workflow_dispatch:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04  # 旧カーネル向けの環境
 
     steps:
-    - name: Checkout repository
+    - name: Checkout Source Code
       uses: actions/checkout@v4
 
-    - name: Set up environment
+    - name: Install Dependencies
       run: |
         sudo apt update
         sudo apt install -y repo wget curl git unzip
