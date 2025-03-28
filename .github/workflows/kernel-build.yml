@@ -45,7 +45,7 @@ jobs:
           make -j$(nproc)  # Adjust the number of cores based on your system
 
       - name: Upload Kernel Image
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v2  # Version changed to v2
         with:
           name: kernel-image
           path: android_kernel_samsung_msm8917/arch/arm64/boot/Image.gz-dtb
