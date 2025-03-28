@@ -15,29 +15,25 @@ jobs:
 
     steps:
     - name: Checkout Source Code
-      uses: actions/checkout@v3  # v4は古い環境で問題が出ることがあるためv3に変更
+      uses: actions/checkout@v3  # v4 は相性が悪いため v3 を使用
 
     - name: Install Dependencies
       run: |
         sudo apt update
-        sudo apt install -y wget curl git unzip python3
+        sudo apt install -y wget curl git unzip python3 build-essential gcc g++ libncurses5-dev libssl-dev bc flex bison
 
     - name: Install repo manually
       run: |
         mkdir -p $HOME/bin
-        curl https://storage.googleapis.com/git-repo-downloads/repo > $HOME/bin/repo
-        chmod a+x $HOME/bin/repo
-        echo "PATH=$HOME/bin:$PATH" >> $GITHUB_ENV
-        hash -r  # キャッシュをクリアして即反映
+        curl -o $HOME/bin/repo https://storage.googleapis.com/git-repo-downloads/repo || (echo "Failed to download repo"; exit 1)
+        chmod +x $HOME/bin/repo
+        echo "$HOME/bin" >> $GITHUB_PATH  # GitHub Actions でパスを確実に適用
+        export PATH="$HOME/bin:$PATH"  # 即時適用
+        hash -r  # コマンドキャッシュをクリア
         which repo || (echo "repo command not found"; exit 1)
-
-    - name: Install Build Essentials
-      run: |
-        sudo apt install -y build-essential gcc g++ libncurses5-dev libssl-dev bc flex bison
 
     - name: Initialize repo for Android Kernel 3.18
       run: |
-        source $GITHUB_ENV
         mkdir android-kernel && cd android-kernel
         repo init -u https://android.googlesource.com/kernel/manifest -b android-msm-marlin-3.18-oreo || (echo "repo init failed"; exit 1)
         repo sync -j$(nproc) || (echo "repo sync failed"; exit 1)
@@ -48,19 +44,19 @@ jobs:
         TOOLCHAIN_DIR="$HOME/aosp-toolchain"
         mkdir -p $TOOLCHAIN_DIR
         curl -L $TOOLCHAIN_URL -o toolchain.tar.bz2 || (echo "Failed to download toolchain"; exit 1)
-        tar -xvjf toolchain.tar.bz2 -C $TOOLCHAIN_DIR
-        echo "PATH=$TOOLCHAIN_DIR/bin:$PATH" >> $GITHUB_ENV
+        tar -xvjf toolchain.tar.bz2 -C $TOOLCHAIN_DIR || (echo "Failed to extract toolchain"; exit 1)
+        echo "$TOOLCHAIN_DIR/bin" >> $GITHUB_PATH
+        export PATH="$TOOLCHAIN_DIR/bin:$PATH"
         echo "Toolchain setup complete"
 
     - name: Build Kernel
       run: |
-        source $GITHUB_ENV
         cd android-kernel
         make ARCH=arm64 CROSS_COMPILE=aarch64-linux-android- O=out j6primelte_defconfig || (echo "Defconfig failed"; exit 1)
         make ARCH=arm64 CROSS_COMPILE=aarch64-linux-android- -j$(nproc) O=out zImage || (echo "Kernel build failed"; exit 1)
 
     - name: Upload Build Artifacts
-      uses: actions/upload-artifact@v4  # v1 → v4に修正
+      uses: actions/upload-artifact@v4
       with:
         name: android-kernel-build
         path: android-kernel/out/arch/arm64/boot/zImage
