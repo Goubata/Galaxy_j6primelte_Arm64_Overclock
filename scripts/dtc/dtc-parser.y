@@ -18,6 +18,10 @@
  *                                                                   USA
  */
 
+#ifndef YYSTYPE
+#define YYSTYPE int
+#endif
+
 %{
 #include <stdio.h>
 #include <yacc.h>
@@ -116,10 +120,6 @@ static unsigned char eval_char_literal(const char *s);
 
 
 %%
-
-#ifndef YYSTYPE
-#define YYSTYPE int
-#endif
 
 sourcefile:
 	  DT_V1 ';' memreserves devicetree
