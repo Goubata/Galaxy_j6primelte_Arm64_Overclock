@@ -44,8 +44,10 @@ jobs:
       - name: Build Kernel
         run: |
           make clean && make mrproper
-          make ARCH=arm64 CROSS_COMPILE=aarch64-linux-android-  DTC_EXT=dtc j6primelte_defconfig
-          make ARCH=arm64 CROSS_COMPILE=aarch64-linux-android-  DTC_EXT=dtc -j$(nproc)
+          export SUBARCH=arm64
+          export ARCH=arm64 
+          make ARCH=arm64 SUBARCH=arm64 CROSS_COMPILE=aarch64-linux-android-  DTC_EXT=dtc j6primelte_defconfig
+          make ARCH=arm64 SUBARCH=arm64 CROSS_COMPILE=aarch64-linux-android-  DTC_EXT=dtc -j$(nproc)
 
       - name: Upload Kernel Image
         uses: actions/upload-artifact@v4
