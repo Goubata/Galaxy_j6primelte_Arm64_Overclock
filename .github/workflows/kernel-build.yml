@@ -14,8 +14,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+    - name: Checkout Source Code
+      uses: actions/checkout@v3  # v4は古い環境で問題が出ることがあるためv3に変更
 
       - name: Install dependencies
         run: |
