@@ -1,49 +1,37 @@
-name: Debug Toolchain Download
+name: Debug Kernel Build
 
-on:
-  workflow_dispatch:
+on: [push, pull_request]
 
 jobs:
-  debug:
+  build:
     runs-on: ubuntu-latest
-    
+
     steps:
-      - name: Checkout repository
+      - name: リポジトリをチェックアウト
         uses: actions/checkout@v4
 
-      - name: Set environment variables
+      - name: 必要なパッケージをインストール
         run: |
-          export TOOLCHAIN_URL="https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/+archive/master.tar.gz"
-          export TOOLCHAIN_DIR="$GITHUB_WORKSPACE/toolchains"
-          echo "TOOLCHAIN_URL=$TOOLCHAIN_URL" >> $GITHUB_ENV
-          echo "TOOLCHAIN_DIR=$TOOLCHAIN_DIR" >> $GITHUB_ENV
+          sudo apt update
+          sudo apt install -y build-essential flex bison libssl-dev bc
 
-      - name: Download toolchain
+      - name: ツールチェーンをダウンロード
         run: |
+          TOOLCHAIN_URL="https://releases.linaro.org/components/toolchain/binaries/latest-4.9/aarch64-linux-gnu/"
+          TOOLCHAIN_DIR=$HOME/toolchain
           mkdir -p $TOOLCHAIN_DIR
-          wget -O toolchain.tar.gz $TOOLCHAIN_URL
-          echo "Downloaded file details:"
-          ls -lh toolchain.tar.gz
-          file toolchain.tar.gz
-          tar -tzf toolchain.tar.gz || echo "Failed to list tar contents"
+          wget -q --show-progress $TOOLCHAIN_URL/aarch64-linux-gnu-gcc -P $TOOLCHAIN_DIR/bin
+          wget -q --show-progress $TOOLCHAIN_URL/aarch64-linux-gnu-g++ -P $TOOLCHAIN_DIR/bin
+          wget -q --show-progress $TOOLCHAIN_URL/aarch64-linux-gnu-ld -P $TOOLCHAIN_DIR/bin
+          chmod +x $TOOLCHAIN_DIR/bin/*
 
-      - name: Extract toolchain
+      - name: 環境変数を設定
         run: |
-          tar -xvzf toolchain.tar.gz -C $TOOLCHAIN_DIR || echo "Extraction failed"
-          ls -lh $TOOLCHAIN_DIR
+          echo "CROSS_COMPILE=$HOME/toolchain/bin/aarch64-linux-gnu-" >> $GITHUB_ENV
+          echo "ARCH=arm64" >> $GITHUB_ENV
+          echo "PATH=$HOME/toolchain/bin:$PATH" >> $GITHUB_ENV
 
-      - name: Check toolchain directory
+      - name: カーネルをビルド
         run: |
-          echo "Listing toolchain directory:"
-          ls -lh $TOOLCHAIN_DIR
-          echo "Listing toolchain/bin directory:"
-          ls -lh $TOOLCHAIN_DIR/bin || echo "No bin directory found"
-
-      - name: Verify GCC binary
-        run: |
-          if [ -f "$TOOLCHAIN_DIR/bin/aarch64-linux-android-gcc" ]; then
-            echo "GCC found:"
-            ls -lh $TOOLCHAIN_DIR/bin/aarch64-linux-android-gcc
-          else
-            echo "GCC not found in toolchain"
-          fi
+          make defconfig
+          make -j$(nproc)
