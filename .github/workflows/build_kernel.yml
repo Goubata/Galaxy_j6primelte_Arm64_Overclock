@@ -49,7 +49,7 @@ jobs:
         make ARCH=arm64 CROSS_COMPILE=aarch64-linux-android- -j$(nproc) O=out zImage
 
     - name: Upload Build Artifacts
-      uses: actions/upload-artifact@v2  # v3ではなくv2に変更
+      uses: actions/upload-artifact@v1  # v2からv1に変更
       with:
         name: android-kernel-build
         path: android-kernel/out/arch/arm64/boot/zImage
