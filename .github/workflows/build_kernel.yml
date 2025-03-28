@@ -45,8 +45,7 @@ jobs:
         make ARCH=arm64 CROSS_COMPILE=aarch64-linux-android- -j$(nproc) O=out zImage
 
     - name: Upload Build Artifacts
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3  # Update to latest version
       with:
         name: android-kernel-build
         path: android-kernel/out/arch/arm64/boot/zImage
-
