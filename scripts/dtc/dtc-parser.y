@@ -26,6 +26,10 @@
 #include "dtc.h"
 #include "srcpos.h"
 
+#ifndef YYSTYPE
+#define YYSTYPE union YYSTYPE
+#endif
+
 YYLTYPE yylloc;
 
 extern int yylex(void);
