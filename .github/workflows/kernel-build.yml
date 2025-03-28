@@ -248,6 +248,7 @@ jobs:
 
       - name: Configure Kernel
         run: |
+          make clean && make mrproper
           make O=out j6primelte_defconfig  # or your specific defconfig
 
       - name: Build Kernel
