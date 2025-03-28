@@ -26,7 +26,7 @@ jobs:
           echo "PATH=$TOOLCHAIN_DIR:$PATH" >> $GITHUB_ENV
           export CROSS_COMPILE=$(pwd)/gcc-4.9/bin/aarch64-linux-android-
           CROSS_COMPILE_DIR=$(pwd)/gcc-4.9/bin/
-          echo "CROSS_COMPILE=CROSSCOMPILE_DIR" >> $GITHUB_ENV
+          echo "CROSS_COMPILE=CROSS_COMPILE_DIR" >> $GITHUB_ENV
 
       - name: Install py2
         run: |
