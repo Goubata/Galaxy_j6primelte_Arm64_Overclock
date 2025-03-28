@@ -226,7 +226,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt update
-          sudo apt install -y build-essential gcc-aarch64-linux-gnu bc bison flex libssl-dev ccache libncurses5-dev python
+          sudo apt install -y build-essential gcc-aarch64-linux-gnu bc bison flex libssl-dev ccache libncurses5-dev python2
 
       - name: Set up environment
         run: |
