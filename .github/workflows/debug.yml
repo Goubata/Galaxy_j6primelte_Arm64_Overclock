@@ -1,47 +1,44 @@
-name: Debug
+name: Debug Toolchain
 
 on:
-  push:
-    branches:
-      - lineage-17.1-64
-  pull_request:
-    branches:
-      - lineage-17.1-64
   workflow_dispatch:
 
 jobs:
-  build:
-    runs-on: ubuntu-20.04  # 旧カーネル向けの環境
-
+  debug-toolchain:
+    runs-on: ubuntu-latest
     steps:
-    - name: Checkout Source Code
-      uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Install Dependencies
-      run: |
-        sudo apt update
-        sudo apt install -y make bc bison flex libssl-dev libncurses5-dev
+      - name: Set up environment variables
+        run: |
+          echo "TOOLCHAIN_URL=https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/+archive/master.tar.gz" >> $GITHUB_ENV
+          echo "TOOLCHAIN_DIR=$GITHUB_WORKSPACE/toolchains" >> $GITHUB_ENV
 
-    - name: Download and Setup GCC 4.9 Toolchain
-      run: |
-# ツールチェーンのURL
-TOOLCHAIN_URL="https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/+archive/master.tar.gz"
+      - name: Create toolchain directory
+        run: mkdir -p $TOOLCHAIN_DIR
 
-# ツールチェーンの保存ディレクトリ
-TOOLCHAIN_DIR="$GITHUB_WORKSPACE/toolchains"
+      - name: Download toolchain
+        run: |
+          wget -O toolchain.tar.gz $TOOLCHAIN_URL || { echo "Failed to download toolchain"; exit 1; }
 
-# ディレクトリを作成
-mkdir -p $TOOLCHAIN_DIR
+      - name: Extract toolchain
+        run: |
+          tar -xzf toolchain.tar.gz -C $TOOLCHAIN_DIR || { echo "Failed to extract toolchain"; exit 1; }
 
-# ダウンロードを試す
-echo "Downloading toolchain..."
-wget -O toolchain.tar.gz $TOOLCHAIN_URL || { echo "Failed to download toolchain"; exit 1; }
+      - name: Check extracted files
+        run: |
+          echo "Listing toolchain directory:"
+          ls -lah $TOOLCHAIN_DIR
+          echo "Listing toolchain/bin directory:"
+          ls -lah $TOOLCHAIN_DIR/bin || echo "No bin directory found"
 
-# 展開する
-echo "Extracting toolchain..."
-tar -xzf toolchain.tar.gz -C $TOOLCHAIN_DIR || { echo "Failed to extract toolchain"; exit 1; }
-
-# 確認用ログ出力
-echo "Checking extracted files..."
-ls -lah $TOOLCHAIN_DIR
-ls -lah $TOOLCHAIN_DIR/bin
+      - name: Check toolchain binaries
+        run: |
+          if [ -f "$TOOLCHAIN_DIR/bin/aarch64-linux-android-gcc" ]; then
+            echo "GCC found:"
+            file $TOOLCHAIN_DIR/bin/aarch64-linux-android-gcc
+          else
+            echo "GCC not found in toolchain"
+            exit 1
+          fi
