@@ -3,43 +3,34 @@ name: Build Android Kernel 3.18v2
 on:
   push:
     branches:
-      - lineage-17.1-64  # 必要に応じて変更
+      - lineage-17.1-64
   pull_request:
     branches:
       - lineage-17.1-64
 
 jobs:
   build:
-    runs-on: ubuntu-20.04
-    steps:
-      - name: Checkout source
-        uses: actions/checkout@v4
+    runs-on: ubuntu-latest
 
-      - name: Install dependencies
-        run: |
-          sudo apt update
-          sudo apt install -y build-essential bc libncurses5-dev ccache flex bison \
-                              zip curl git python3 libssl-dev
+    steps:
+      - name: Checkout Kernel Source
+        uses: actions/checkout@v4
 
       - name: Setup GCC 4.9 toolchain
         run: |
           mkdir -p ~/toolchains
           cd ~/toolchains
-          wget -q https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/+archive/refs/heads/master.tar.gz -O gcc-4.9.tar.gz
-          tar -xzf gcc-4.9.tar.gz
-          echo "TOOLCHAIN=$(pwd)/bin" >> $GITHUB_ENV
+          git clone --depth=1 https://github.com/KudProject/aarch64-linux-android-4.9.git gcc-4.9
+          TOOLCHAIN_DIR=$(pwd)/gcc-4.9/bin
+          echo "TOOLCHAIN=$TOOLCHAIN_DIR" >> $GITHUB_ENV
+          echo "PATH=$TOOLCHAIN_DIR:$PATH" >> $GITHUB_ENV
 
-      - name: Configure kernel
+      - name: Build Kernel
         run: |
-          export PATH=$TOOLCHAIN:$PATH
           make ARCH=arm64 CROSS_COMPILE=aarch64-linux-android- j6primelte_defconfig
+          make ARCH=arm64 CROSS_COMPILE=aarch64-linux-android- -j$(nproc)
 
-      - name: Build kernel
-        run: |
-          export PATH=$TOOLCHAIN:$PATH
-          make -j$(nproc) ARCH=arm64 CROSS_COMPILE=aarch64-linux-android-
-
-      - name: Upload kernel image
+      - name: Upload Kernel Image
         uses: actions/upload-artifact@v4
         with:
           name: kernel-image
