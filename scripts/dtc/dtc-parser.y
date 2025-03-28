@@ -117,12 +117,6 @@ static unsigned char eval_char_literal(const char *s);
 %token <srcpos> SRC_POS
 %define api.value.type {union}
 
-%{
-#ifndef YYSTYPE
-#define YYSTYPE int
-#endif
-%}
-
 %%
 
 sourcefile:
