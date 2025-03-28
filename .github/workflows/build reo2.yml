@@ -43,6 +43,7 @@ jobs:
 
       - name: Build Kernel
         run: |
+          make clean && make mrproper
           make ARCH=arm64 CROSS_COMPILE=aarch64-linux-android- CC=gcc-9 DTC_EXT=dtc j6primelte_defconfig
           make ARCH=arm64 CROSS_COMPILE=aarch64-linux-android- CC=gcc-9 DTC_EXT=dtc -j$(nproc)
 
