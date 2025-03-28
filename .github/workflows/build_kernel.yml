@@ -20,6 +20,7 @@ jobs:
     - name: Install Dependencies
       run: |
         sudo apt update
+        sudo apt upgrade -y
         sudo apt install -y repo wget curl git unzip
 
     - name: Install Build Essentials
