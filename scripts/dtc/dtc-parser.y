@@ -18,10 +18,6 @@
  *                                                                   USA
  */
 
-#ifndef YYSTYPE
-#define YYSTYPE int
-#endif
-
 %{
 #include <stdio.h>
 #include <yacc.h>
