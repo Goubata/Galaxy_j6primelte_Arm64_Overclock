@@ -16,17 +16,14 @@ jobs:
     - name: Checkout source
       uses: actions/checkout@v4
 
-    - name: Set up environment
-      run: |
-        sudo apt update
-        sudo apt install -y clang lld git wget curl build-essential bc libssl-dev flex bison
+    - name: Install dependencies
+      run: sudo apt update && sudo apt install -y clang lld build-essential bc libssl-dev flex bison
 
-    - name: Download and Set Up Toolchain
+    - name: Setup Toolchain
       run: |
-        mkdir -p $GITHUB_WORKSPACE/toolchains
-        cd $GITHUB_WORKSPACE/toolchains
-        wget https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/main.tar.gz -O clang.tar.gz
-        tar -xzf clang.tar.gz
+        TOOLCHAIN_URL="https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/main.tar.gz"
+        mkdir -p toolchains && cd toolchains
+        wget -qO- $TOOLCHAIN_URL | tar -xz
         echo "PATH=$GITHUB_WORKSPACE/toolchains/bin:$PATH" >> $GITHUB_ENV
 
     - name: Compile Kernel
@@ -36,7 +33,6 @@ jobs:
         export CROSS_COMPILE=aarch64-linux-gnu-
         export CROSS_COMPILE_ARM32=arm-linux-gnueabi-
         export CLANG_TRIPLE=aarch64-linux-gnu-
-        export PATH="$GITHUB_WORKSPACE/toolchains/bin:$PATH"
 
         mkdir -p out
         make O=out <defconfig名>
