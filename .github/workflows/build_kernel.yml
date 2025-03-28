@@ -27,31 +27,34 @@ jobs:
         mkdir -p $HOME/bin
         curl https://storage.googleapis.com/git-repo-downloads/repo > $HOME/bin/repo
         chmod a+x $HOME/bin/repo
-        echo 'export PATH=$HOME/bin:$PATH' >> $HOME/.bashrc
-        source $HOME/.bashrc
-        
+        echo "PATH=$HOME/bin:$PATH" >> $GITHUB_ENV
+        hash -r  # キャッシュをクリアして即反映
+        which repo || (echo "repo command not found"; exit 1)
+
     - name: Install Build Essentials
       run: |
         sudo apt install -y build-essential gcc g++ libncurses5-dev libssl-dev bc flex bison
 
     - name: Initialize repo for Android Kernel 3.18
       run: |
+        source $GITHUB_ENV
         mkdir android-kernel && cd android-kernel
         repo init -u https://android.googlesource.com/kernel/manifest -b android-msm-marlin-3.18-oreo || (echo "repo init failed"; exit 1)
         repo sync -j$(nproc) || (echo "repo sync failed"; exit 1)
 
     - name: Set up Toolchain (AOSP)
       run: |
-        TOOLCHAIN_URL="https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads"
+        TOOLCHAIN_URL="https://developer.arm.com/-/media/Files/downloads/gnu-rm/10-2020-q4-major/gcc-arm-none-eabi-10-2020-q4-major-x86_64-linux.tar.bz2"
         TOOLCHAIN_DIR="$HOME/aosp-toolchain"
         mkdir -p $TOOLCHAIN_DIR
-        curl -L $TOOLCHAIN_URL -o toolchain.tar.gz || (echo "Failed to download toolchain"; exit 1)
-        tar -xvzf toolchain.tar.gz -C $TOOLCHAIN_DIR
-        export PATH=$TOOLCHAIN_DIR/bin:$PATH
+        curl -L $TOOLCHAIN_URL -o toolchain.tar.bz2 || (echo "Failed to download toolchain"; exit 1)
+        tar -xvjf toolchain.tar.bz2 -C $TOOLCHAIN_DIR
+        echo "PATH=$TOOLCHAIN_DIR/bin:$PATH" >> $GITHUB_ENV
         echo "Toolchain setup complete"
 
     - name: Build Kernel
       run: |
+        source $GITHUB_ENV
         cd android-kernel
         make ARCH=arm64 CROSS_COMPILE=aarch64-linux-android- O=out j6primelte_defconfig || (echo "Defconfig failed"; exit 1)
         make ARCH=arm64 CROSS_COMPILE=aarch64-linux-android- -j$(nproc) O=out zImage || (echo "Kernel build failed"; exit 1)
