@@ -1,0 +1,21 @@
+# ツールチェーンのURL
+TOOLCHAIN_URL="https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/+archive/master.tar.gz"
+
+# ツールチェーンの保存ディレクトリ
+TOOLCHAIN_DIR="$GITHUB_WORKSPACE/toolchains"
+
+# ディレクトリを作成
+mkdir -p $TOOLCHAIN_DIR
+
+# ダウンロードを試す
+echo "Downloading toolchain..."
+wget -O toolchain.tar.gz $TOOLCHAIN_URL || { echo "Failed to download toolchain"; exit 1; }
+
+# 展開する
+echo "Extracting toolchain..."
+tar -xzf toolchain.tar.gz -C $TOOLCHAIN_DIR || { echo "Failed to extract toolchain"; exit 1; }
+
+# 確認用ログ出力
+echo "Checking extracted files..."
+ls -lah $TOOLCHAIN_DIR
+ls -lah $TOOLCHAIN_DIR/bin
