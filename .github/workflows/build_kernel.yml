@@ -15,29 +15,29 @@ jobs:
 
     steps:
     - name: Checkout Source Code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v3  # v4は古い環境で問題が出ることがあるためv3に変更
 
     - name: Install Dependencies
       run: |
         sudo apt update
         sudo apt install -y repo wget curl git unzip
 
-    - name: Install dependencies
+    - name: Install Build Essentials
       run: |
         sudo apt install -y build-essential gcc g++ libncurses5-dev libssl-dev bc flex bison
 
     - name: Initialize repo for Android Kernel 3.18
       run: |
         mkdir android-kernel && cd android-kernel
-        repo init -u https://android.googlesource.com/kernel/manifest -b android-msm-marlin-3.18-oreo
-        repo sync -j$(nproc)  # Fetch all necessary files
+        repo init -u https://android.googlesource.com/kernel/manifest -b android-msm-marlin-3.18-oreo || (echo "repo init failed"; exit 1)
+        repo sync -j$(nproc) || (echo "repo sync failed"; exit 1)
 
     - name: Set up Toolchain (AOSP)
       run: |
         TOOLCHAIN_URL="https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads"
         TOOLCHAIN_DIR="$HOME/aosp-toolchain"
         mkdir -p $TOOLCHAIN_DIR
-        curl -L $TOOLCHAIN_URL -o toolchain.tar.gz
+        curl -L $TOOLCHAIN_URL -o toolchain.tar.gz || (echo "Failed to download toolchain"; exit 1)
         tar -xvzf toolchain.tar.gz -C $TOOLCHAIN_DIR
         export PATH=$TOOLCHAIN_DIR/bin:$PATH
         echo "Toolchain setup complete"
@@ -45,11 +45,11 @@ jobs:
     - name: Build Kernel
       run: |
         cd android-kernel
-        make ARCH=arm64 CROSS_COMPILE=aarch64-linux-android- O=out j6primelte_defconfig
-        make ARCH=arm64 CROSS_COMPILE=aarch64-linux-android- -j$(nproc) O=out zImage
+        make ARCH=arm64 CROSS_COMPILE=aarch64-linux-android- O=out j6primelte_defconfig || (echo "Defconfig failed"; exit 1)
+        make ARCH=arm64 CROSS_COMPILE=aarch64-linux-android- -j$(nproc) O=out zImage || (echo "Kernel build failed"; exit 1)
 
     - name: Upload Build Artifacts
-      uses: actions/upload-artifact@v1  # v2からv1に変更
+      uses: actions/upload-artifact@v4  # v1 → v4に修正
       with:
         name: android-kernel-build
         path: android-kernel/out/arch/arm64/boot/zImage
