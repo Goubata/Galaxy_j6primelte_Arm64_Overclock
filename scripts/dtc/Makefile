@@ -24,17 +24,16 @@ HOSTCFLAGS_util.o := $(HOSTCFLAGS_DTC)
 HOSTCFLAGS_dtc-lexer.lex.o := $(HOSTCFLAGS_DTC)
 HOSTCFLAGS_dtc-parser.tab.o := $(HOSTCFLAGS_DTC)
 
+# dtc-parser.tab.h を生成するために必要なルール（bisonを使用）
+$(obj)/dtc-parser.tab.h: $(srctree)/scripts/dtc/dtc-parser.y
+	bison -d $(srctree)/scripts/dtc/dtc-parser.y
+
 # dtc-lexer.lex.o と dtc-parser.tab.o の依存関係
 $(obj)/dtc-lexer.lex.o: $(obj)/dtc-parser.tab.h $(obj)/dtc-parser.tab.c
 	$(HOSTCC) $(HOSTCFLAGS_dtc-lexer.lex.o) -c -o $@ $<
 
 $(obj)/dtc-parser.tab.o: $(obj)/dtc-parser.tab.h $(obj)/dtc-parser.tab.c
 	$(HOSTCC) $(HOSTCFLAGS_dtc-parser.tab.o) -c -o $@ $<
-
-# dtc-parser.tab.h を生成するために必要なルール（bisonを使用）
-# $(src) を $(srctree) に変更
-$(obj)/dtc-parser.tab.h: $(srctree)/scripts/dtc/dtc-parser.y
-	bison -d $(srctree)/scripts/dtc/dtc-parser.y
 
 # clean-files に追加するために生成するファイルを明示的に指定
 clean-files := dtc-lexer.lex.c dtc-parser.tab.c dtc-parser.tab.h \
