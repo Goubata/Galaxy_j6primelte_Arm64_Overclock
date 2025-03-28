@@ -3,10 +3,10 @@ name: Build Kernel
 on:
   push:
     branches:
-      - main
+      - lineage-17.1-64
   pull_request:
     branches:
-      - main
+      - lineage-17.1-64
 
 jobs:
   build:
@@ -19,7 +19,7 @@ jobs:
     - name: Set up environment
       run: |
         sudo apt update
-        sudo apt install -y clang lld git wget curl
+        sudo apt install -y clang lld git wget curl build-essential bc libssl-dev flex bison
 
     - name: Download and Set Up Toolchain
       run: |
@@ -27,7 +27,7 @@ jobs:
         cd $GITHUB_WORKSPACE/toolchains
         wget https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/main.tar.gz -O clang.tar.gz
         tar -xzf clang.tar.gz
-        export PATH="$GITHUB_WORKSPACE/toolchains/bin:$PATH"
+        echo "PATH=$GITHUB_WORKSPACE/toolchains/bin:$PATH" >> $GITHUB_ENV
 
     - name: Compile Kernel
       run: |
