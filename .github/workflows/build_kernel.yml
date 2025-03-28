@@ -13,25 +13,25 @@ jobs:
       - name: Install Dependencies
         run: |
           sudo apt update
-          sudo apt install -y bc build-essential ccache clang flex bison git libssl-dev wget curl
+          sudo apt install -y bc build-essential ccache flex bison git libssl-dev wget curl
 
       - name: Set Up Toolchain
         run: |
           mkdir -p toolchains
           wget -q https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/+archive/refs/heads/master.tar.gz -O toolchains/gcc.tar.gz
           tar -xf toolchains/gcc.tar.gz -C toolchains
-          export PATH=$PWD/toolchains/bin:$PATH
+          echo "TOOLCHAIN_PATH=$(pwd)/toolchains" >> $GITHUB_ENV
 
       - name: Configure Kernel
         run: |
           export ARCH=arm64
-          export CROSS_COMPILE=aarch64-linux-android-
+          export CROSS_COMPILE=$TOOLCHAIN_PATH/bin/aarch64-linux-android-
           make O=out j6primelte_defconfig
 
       - name: Compile Kernel
         run: |
           export ARCH=arm64
-          export CROSS_COMPILE=aarch64-linux-android-
+          export CROSS_COMPILE=$TOOLCHAIN_PATH/bin/aarch64-linux-android-
           make -j$(nproc) O=out
 
       - name: Upload Kernel Image
