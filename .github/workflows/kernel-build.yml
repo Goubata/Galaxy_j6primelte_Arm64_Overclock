@@ -227,9 +227,9 @@ jobs:
         run: |
           sudo apt update
           sudo apt install -y build-essential gcc-aarch64-linux-gnu bc bison flex libssl-dev ccache libncurses5-dev
-          sudo add-apt-repository ppa:deadsnakes/ppa
-          sudo apt update
-          sudo apt install python2.7
+          curl https://bootstrap.pypa.io/pip/2.7/get-pip.py -o get-pip.py
+          python2.7 get-pip.py
+
 
 
       - name: Set up environment
