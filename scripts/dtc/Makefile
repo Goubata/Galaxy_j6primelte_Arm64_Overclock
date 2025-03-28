@@ -24,12 +24,23 @@ HOSTCFLAGS_dtc-lexer.lex.o := $(HOSTCFLAGS_DTC)
 HOSTCFLAGS_dtc-parser.tab.o := $(HOSTCFLAGS_DTC)
 
 # dependencies on generated files need to be listed explicitly
-$(obj)/dtc-lexer.lex.o: $(obj)/dtc-parser.tab.c
+$(obj)/dtc-lexer.lex.o: $(obj)/dtc-parser.tab.h $(obj)/dtc-parser.tab.c
 	$(HOSTCC) $(HOSTCFLAGS_dtc-lexer.lex.o) -c -o $@ $<
 
-$(obj)/dtc-parser.tab.o: $(obj)/dtc-parser.tab.c
+$(obj)/dtc-parser.tab.o: $(obj)/dtc-parser.tab.h $(obj)/dtc-parser.tab.c
 	$(HOSTCC) $(HOSTCFLAGS_dtc-parser.tab.o) -c -o $@ $<
 
-# generated files need to be cleaned explicitly
+# dtc-parser.tab.h を生成するために必要なルール（bisonを使用）
+$(obj)/dtc-parser.tab.h: $(src)/dtc-parser.y
+	bison -d $(src)/dtc-parser.y
+
+# clean-files に追加するために生成するファイルを明示的に指定
 clean-files := dtc-lexer.lex.c dtc-parser.tab.c dtc-parser.tab.h \
                dtc-lexer.lex.o dtc-parser.tab.o
+
+# dtc-lexer.lex.o と dtc-parser.tab.o の依存関係
+$(obj)/dtc-lexer.lex.o: $(obj)/dtc-parser.tab.h $(obj)/dtc-parser.tab.c
+	$(HOSTCC) $(HOSTCFLAGS_dtc-lexer.lex.o) -c -o $@ $<
+
+$(obj)/dtc-parser.tab.o: $(obj)/dtc-parser.tab.h $(obj)/dtc-parser.tab.c
+	$(HOSTCC) $(HOSTCFLAGS_dtc-parser.tab.o) -c -o $@ $<
