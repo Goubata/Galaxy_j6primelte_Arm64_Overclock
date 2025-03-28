@@ -25,6 +25,15 @@ jobs:
           echo "TOOLCHAIN=$TOOLCHAIN_DIR" >> $GITHUB_ENV
           echo "PATH=$TOOLCHAIN_DIR:$PATH" >> $GITHUB_ENV
 
+      - name: Install py2
+        run: |
+          wget https://www.python.org/ftp/python/2.7.18/Python-2.7.18.tgz
+          tar xvf Python-2.7.18.tgz
+          cd Python-2.7.18
+          ./configure
+          make
+          sudo make install
+
       - name: Build Kernel
         run: |
           make ARCH=arm64 CROSS_COMPILE=aarch64-linux-android- j6primelte_defconfig
