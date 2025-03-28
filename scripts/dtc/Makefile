@@ -39,10 +39,3 @@ $(obj)/dtc-parser.tab.h: $(srctree)/scripts/dtc/dtc-parser.y
 # clean-files に追加するために生成するファイルを明示的に指定
 clean-files := dtc-lexer.lex.c dtc-parser.tab.c dtc-parser.tab.h \
                dtc-lexer.lex.o dtc-parser.tab.o
-
-# dtc-lexer.lex.o と dtc-parser.tab.o の依存関係
-$(obj)/dtc-lexer.lex.o: $(obj)/dtc-parser.tab.h $(obj)/dtc-parser.tab.c
-	$(HOSTCC) $(HOSTCFLAGS_dtc-lexer.lex.o) -c -o $@ $<
-
-$(obj)/dtc-parser.tab.o: $(obj)/dtc-parser.tab.h $(obj)/dtc-parser.tab.c
-	$(HOSTCC) $(HOSTCFLAGS_dtc-parser.tab.o) -c -o $@ $<
