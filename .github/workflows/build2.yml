@@ -1,4 +1,4 @@
-name: Build Android Kernel 3.18
+name: Build Android Kernel 3.18v2
 
 on:
   push:
