@@ -1,0 +1,51 @@
+name: Kernel Build
+
+on:
+  push:
+    branches:
+      - lineage-17.1-64
+  pull_request:
+    branches:
+      - lineage-17.1-64
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y build-essential gcc-aarch64-linux-gnu bc bison flex libssl-dev ccache libncurses5-dev
+
+      - name: Set up environment
+        run: |
+          export ARCH=arm64
+          export CROSS_COMPILE=aarch64-linux-gnu-
+          export PATH=/usr/bin:$PATH
+
+      - name: Set up Kernel source
+        run: |
+          git clone https://github.com/lineageos/android_kernel_samsung_msm8917.git
+          cd android_kernel_samsung_msm8917
+          git checkout lineage-17.1-64
+
+      - name: Configure Kernel
+        run: |
+          cd android_kernel_samsung_msm8917
+          make msm8917_defconfig  # or your specific defconfig
+
+      - name: Build Kernel
+        run: |
+          cd android_kernel_samsung_msm8917
+          make -j$(nproc)  # Adjust the number of cores based on your system
+
+      - name: Upload Kernel Image
+        uses: actions/upload-artifact@v3
+        with:
+          name: kernel-image
+          path: android_kernel_samsung_msm8917/arch/arm64/boot/Image.gz-dtb
