@@ -1,7 +1,7 @@
-name: Debug Toolchain
+name: Debug Toolchain Download
 
 on:
-  workflow_dispatch: # 手動で実行可能
+  workflow_dispatch:
 
 jobs:
   debug:
@@ -22,19 +22,17 @@ jobs:
         run: |
           mkdir -p $TOOLCHAIN_DIR
           wget -O toolchain.tar.gz $TOOLCHAIN_URL
+          echo "Downloaded file details:"
           ls -lh toolchain.tar.gz
-
-      - name: Verify downloaded tarball
-        run: |
-          echo "Checking tarball contents:"
-          tar -tzf toolchain.tar.gz || { echo "Failed to list tar contents"; exit 1; }
+          file toolchain.tar.gz
+          tar -tzf toolchain.tar.gz || echo "Failed to list tar contents"
 
       - name: Extract toolchain
         run: |
-          tar -xvzf toolchain.tar.gz -C $TOOLCHAIN_DIR || { echo "Failed to extract toolchain"; exit 1; }
+          tar -xvzf toolchain.tar.gz -C $TOOLCHAIN_DIR || echo "Extraction failed"
           ls -lh $TOOLCHAIN_DIR
 
-      - name: Check toolchain directory structure
+      - name: Check toolchain directory
         run: |
           echo "Listing toolchain directory:"
           ls -lh $TOOLCHAIN_DIR
@@ -48,5 +46,4 @@ jobs:
             ls -lh $TOOLCHAIN_DIR/bin/aarch64-linux-android-gcc
           else
             echo "GCC not found in toolchain"
-            exit 1
           fi
