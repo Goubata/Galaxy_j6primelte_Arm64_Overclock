@@ -43,7 +43,7 @@ jobs:
 
       - name: Build Kernel
         run: |
-          make ARCH=arm64 CROSS_COMPILE=aarch64-linux-android- CC=gcc-9 DTC_EXT=dtc -j$(nproc)
+          make ARCH=arm64 CROSS_COMPILE=aarch64-linux-android-  DTC_EXT=dtc -j$(nproc)
 
       - name: Upload Kernel Image
         uses: actions/upload-artifact@v4
