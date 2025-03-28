@@ -42,6 +42,7 @@ static unsigned char eval_char_literal(const char *s);
 %union {
 	int ival;
     	char *strval;
+    	char *sval;
     	struct srcpos *srcpos;
 	char *propnodename;
 	char *literal;
@@ -110,6 +111,7 @@ static unsigned char eval_char_literal(const char *s);
 %token <ival> INTEGER
 %token <strval> STRING
 %token <srcpos> SRC_POS
+%define YYSTYPE %union
 
 %%
 
