@@ -20,9 +20,16 @@ jobs:
     - name: Install Dependencies
       run: |
         sudo apt update
-        sudo apt upgrade -y
-        sudo apt install -y repo wget curl git unzip
+        sudo apt install -y wget curl git unzip python3
 
+    - name: Install repo manually
+      run: |
+        mkdir -p $HOME/bin
+        curl https://storage.googleapis.com/git-repo-downloads/repo > $HOME/bin/repo
+        chmod a+x $HOME/bin/repo
+        echo 'export PATH=$HOME/bin:$PATH' >> $HOME/.bashrc
+        source $HOME/.bashrc
+        
     - name: Install Build Essentials
       run: |
         sudo apt install -y build-essential gcc g++ libncurses5-dev libssl-dev bc flex bison
