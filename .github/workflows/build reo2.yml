@@ -1,0 +1,46 @@
+name: Build Android Kernel 3.18v repo2
+
+on:
+  push:
+    branches:
+      - V2
+  pull_request:
+    branches:
+      - V2
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Kernel Source
+        uses: actions/checkout@v4
+
+      - name: Setup GCC 4.9 toolchain
+        run: |
+          mkdir -p ~/toolchains
+          cd ~/toolchains
+          git clone --depth=1 https://github.com/KudProject/aarch64-linux-android-4.9.git gcc-4.9
+          TOOLCHAIN_DIR=$(pwd)/gcc-4.9/bin
+          echo "TOOLCHAIN=$TOOLCHAIN_DIR" >> $GITHUB_ENV
+          echo "PATH=$TOOLCHAIN_DIR:$PATH" >> $GITHUB_ENV
+
+      - name: Install py2
+        run: |
+          wget https://www.python.org/ftp/python/2.7.18/Python-2.7.18.tgz
+          tar xvf Python-2.7.18.tgz
+          cd Python-2.7.18
+          ./configure
+          make
+          sudo make install
+
+      - name: Build Kernel
+        run: |
+          make ARCH=arm64 CROSS_COMPILE=aarch64-linux-android- j6primelte_defconfig
+          make ARCH=arm64 CROSS_COMPILE=aarch64-linux-android- -j$(nproc)
+
+      - name: Upload Kernel Image
+        uses: actions/upload-artifact@v4
+        with:
+          name: kernel-image
+          path: arch/arm64/boot/Image.gz-dtb
