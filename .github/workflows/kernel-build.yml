@@ -226,10 +226,16 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt update
-          sudo apt install -y build-essential gcc-aarch64-linux-gnu bc bison flex libssl-dev ccache libncurses5-dev
-          sudo apt-get remove bison
-          sudo apt-get install bison=2.7*
+          sudo apt install -y build-essential gcc-aarch64-linux-gnu bc flex libssl-dev ccache libncurses5-dev
 
+      - name: Install bison2.7
+        run: |
+          wget http://ftp.gnu.org/gnu/bison/bison-2.7.tar.gz
+          tar -xvzf bison-2.7.tar.gz
+          cd bison-2.7
+          ./configure --prefix=/usr/local
+          make -j$(nproc)
+          sudo make install
 
       - name: Install py2
         run: |
