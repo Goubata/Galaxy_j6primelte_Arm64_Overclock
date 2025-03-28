@@ -227,9 +227,7 @@ jobs:
         run: |
           sudo apt update
           sudo apt install -y build-essential gcc-aarch64-linux-gnu bc bison flex libssl-dev ccache libncurses5-dev
-          sudo add-apt-repository ppa:deadsnakes/ppa
-          sudo apt update
-          sudo apt install python2
+          sudo apt install python2.7
 
       - name: Set up environment
         run: |
