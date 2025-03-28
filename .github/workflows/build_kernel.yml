@@ -35,7 +35,7 @@ jobs:
         export CLANG_TRIPLE=aarch64-linux-gnu-
 
         mkdir -p out
-        make O=out <defconfig名>
+        make O=out j6primelte_defconfig
         make -j$(nproc) O=out CC=clang LLVM=1
 
     - name: Upload Kernel Image
