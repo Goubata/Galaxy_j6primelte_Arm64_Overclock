@@ -112,8 +112,14 @@ static unsigned char eval_char_literal(const char *s);
 %token <strval> STRING
 %token <srcpos> SRC_POS
 %define YYSTYPE %union
+%define api.value.type {union}
+
 
 %%
+
+#ifndef YYSTYPE
+#define YYSTYPE int
+#endif
 
 sourcefile:
 	  DT_V1 ';' memreserves devicetree
