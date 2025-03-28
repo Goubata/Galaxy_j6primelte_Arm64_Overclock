@@ -118,6 +118,11 @@ static unsigned char eval_char_literal(const char *s);
 %define YYSTYPE %union
 %define api.value.type {union}
 
+%{
+#ifndef YYSTYPE
+#define YYSTYPE int
+#endif
+%}
 
 %%
 
