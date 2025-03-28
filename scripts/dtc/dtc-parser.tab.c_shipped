@@ -70,7 +70,7 @@
 #include "dtc.h"
 #include "srcpos.h"
 
-YYLTYPE yylloc;
+extern YYSTYPE yy_lexer_lloc;
 
 extern int yylex(void);
 extern void print_error(char const *fmt, ...);
