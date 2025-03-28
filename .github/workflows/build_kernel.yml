@@ -1,63 +1,52 @@
-name: Build Kernel 3.18
+name: Build Android Kernel 3.18
 
 on:
   push:
     branches:
       - lineage-17.1-64
-  pull_request:
-    branches:
-      - lineage-17.1-64
-  workflow_dispatch:
 
 jobs:
   build:
-    runs-on: ubuntu-20.04  # 旧カーネル向けの環境
+    runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Source Code
+    - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Install Dependencies
+    - name: Set up environment
       run: |
         sudo apt update
-        sudo apt install -y make bc bison flex libssl-dev libncurses5-dev
+        sudo apt install -y repo wget curl git unzip
 
-    - name: Download and Setup GCC 4.9 Toolchain
+    - name: Install dependencies
       run: |
-        TOOLCHAIN_URL="https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/+archive/master.tar.gz"
-        TOOLCHAIN_DIR="$GITHUB_WORKSPACE/toolchains"
+        sudo apt install -y build-essential gcc g++ libncurses5-dev libssl-dev bc flex bison
 
+    - name: Initialize repo for Android Kernel 3.18
+      run: |
+        mkdir android-kernel && cd android-kernel
+        repo init -u https://android.googlesource.com/kernel/manifest -b android-msm-marlin-3.18-oreo
+        repo sync -j$(nproc)  # Fetch all necessary files
+
+    - name: Set up Toolchain (AOSP)
+      run: |
+        TOOLCHAIN_URL="https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads"
+        TOOLCHAIN_DIR="$HOME/aosp-toolchain"
         mkdir -p $TOOLCHAIN_DIR
-        wget -qO toolchain.tar.gz $TOOLCHAIN_URL
-        tar -xzf toolchain.tar.gz -C $TOOLCHAIN_DIR
+        curl -L $TOOLCHAIN_URL -o toolchain.tar.gz
+        tar -xvzf toolchain.tar.gz -C $TOOLCHAIN_DIR
+        export PATH=$TOOLCHAIN_DIR/bin:$PATH
+        echo "Toolchain setup complete"
 
-        ls -lah $TOOLCHAIN_DIR/bin  # デバッグ用: ツールチェーンが正しく展開されたか確認
-
-        echo "PATH=$TOOLCHAIN_DIR/bin:$PATH" >> $GITHUB_ENV
-        echo "CROSS_COMPILE=$TOOLCHAIN_DIR/bin/aarch64-linux-android-" >> $GITHUB_ENV
-        echo "CROSS_COMPILE_ARM32=$TOOLCHAIN_DIR/bin/arm-linux-androideabi-" >> $GITHUB_ENV
-
-    - name: Configure Kernel
+    - name: Build Kernel
       run: |
-        export ARCH=arm64
-        export SUBARCH=arm64
-        export CROSS_COMPILE=$GITHUB_WORKSPACE/toolchains/bin/aarch64-linux-android-
-        export CROSS_COMPILE_ARM32=$GITHUB_WORKSPACE/toolchains/bin/arm-linux-androideabi-
+        cd android-kernel
+        make ARCH=arm64 CROSS_COMPILE=aarch64-linux-android- O=out j6primelte_defconfig
+        make ARCH=arm64 CROSS_COMPILE=aarch64-linux-android- -j$(nproc) O=out zImage
 
-        mkdir -p out
-        make O=out j6primelte_defconfig
-
-    - name: Compile Kernel
-      run: |
-        export ARCH=arm64
-        export SUBARCH=arm64
-        export CROSS_COMPILE=$GITHUB_WORKSPACE/toolchains/bin/aarch64-linux-android-
-        export CROSS_COMPILE_ARM32=$GITHUB_WORKSPACE/toolchains/bin/arm-linux-androideabi-
-
-        make -j$(nproc) O=out
-
-    - name: Upload Kernel Image
-      uses: actions/upload-artifact@v4
+    - name: Upload Build Artifacts
+      uses: actions/upload-artifact@v2
       with:
-        name: kernel-3.18-build
-        path: out/arch/arm64/boot/Image.gz-dtb
+        name: android-kernel-build
+        path: android-kernel/out/arch/arm64/boot/zImage
+
