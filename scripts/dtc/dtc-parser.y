@@ -20,6 +20,8 @@
 
 %{
 #include <stdio.h>
+#include <yacc.h>
+#include <bison.h>
 
 #include "dtc.h"
 #include "srcpos.h"
