@@ -1,3 +1,29 @@
+name: Debug
+
+on:
+  push:
+    branches:
+      - lineage-17.1-64
+  pull_request:
+    branches:
+      - lineage-17.1-64
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04  # 旧カーネル向けの環境
+
+    steps:
+    - name: Checkout Source Code
+      uses: actions/checkout@v4
+
+    - name: Install Dependencies
+      run: |
+        sudo apt update
+        sudo apt install -y make bc bison flex libssl-dev libncurses5-dev
+
+    - name: Download and Setup GCC 4.9 Toolchain
+      run: |
 # ツールチェーンのURL
 TOOLCHAIN_URL="https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/+archive/master.tar.gz"
 
