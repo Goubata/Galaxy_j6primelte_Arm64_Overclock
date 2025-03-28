@@ -20,15 +20,9 @@
 
 %{
 #include <stdio.h>
-#include <yacc.h>
-#include <bison.h>
 
 #include "dtc.h"
 #include "srcpos.h"
-
-#ifndef YYSTYPE
-#define YYSTYPE union YYSTYPE
-#endif
 
 YYLTYPE yylloc;
 
@@ -44,10 +38,6 @@ static unsigned char eval_char_literal(const char *s);
 %}
 
 %union {
-	int ival;
-    	char *strval;
-    	char *sval;
-    	struct srcpos *srcpos;
 	char *propnodename;
 	char *literal;
 	char *labelref;
@@ -112,10 +102,6 @@ static unsigned char eval_char_literal(const char *s);
 %type <integer> integer_or
 %type <integer> integer_trinary
 %type <integer> integer_expr
-%token <ival> INTEGER
-%token <strval> STRING
-%token <srcpos> SRC_POS
-%define api.value.type {union}
 
 %%
 
