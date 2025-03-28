@@ -40,6 +40,9 @@ static unsigned char eval_char_literal(const char *s);
 %}
 
 %union {
+	int ival;
+    	char *strval;
+    	struct srcpos *srcpos;
 	char *propnodename;
 	char *literal;
 	char *labelref;
@@ -104,6 +107,9 @@ static unsigned char eval_char_literal(const char *s);
 %type <integer> integer_or
 %type <integer> integer_trinary
 %type <integer> integer_expr
+%token <ival> INTEGER
+%token <strval> STRING
+%token <srcpos> SRC_POS
 
 %%
 
