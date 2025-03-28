@@ -111,7 +111,6 @@ static unsigned char eval_char_literal(const char *s);
 %token <ival> INTEGER
 %token <strval> STRING
 %token <srcpos> SRC_POS
-%define YYSTYPE %union
 %define api.value.type {union}
 
 %{
