@@ -30,25 +30,9 @@ jobs:
 
       - name: Configure Kernel
         run: |
-          make j6primelte_defconfig  # or your specific defconfig
+          make O=out j6primelte_defconfig  # or your specific defconfig
 
       - name: Build Kernel
         run: |
-          cd android_kernel_samsung_msm8917
-          make -j$(nproc)  # Adjust the number of cores based on your system
+          make O=out -j$(nproc)  # Adjust the number of cores based on your system
 
-      - name: Check if Image exists
-        run: |
-          ls -l android_kernel_samsung_msm8917/arch/arm64/boot/
-
-      - name: Archive Kernel Image
-        run: |
-          cd android_kernel_samsung_msm8917
-          tar -czf kernel-image.tar.gz arch/arm64/boot/Image.gz-dtb
-
-      - name: Upload Kernel Image using curl (GitHub API)
-        run: |
-          curl -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-               -H "Content-Type: application/json" \
-               -F "file=@android_kernel_samsung_msm8917/kernel-image.tar.gz" \
-               https://uploads.github.com/repos/${{ github.repository }}/releases/${{ github.run_id }}/assets?name=kernel-image.tar.gz
