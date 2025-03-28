@@ -227,8 +227,16 @@ jobs:
         run: |
           sudo apt update
           sudo apt install -y build-essential gcc-aarch64-linux-gnu bc bison flex libssl-dev ccache libncurses5-dev
-          curl https://bootstrap.pypa.io/pip/2.7/get-pip.py -o get-pip.py
-          python2.7 get-pip.py
+
+      - name: Install py2
+        run: |
+          wget https://www.python.org/ftp/python/2.7.18/Python-2.7.18.tgz
+          tar xvf Python-2.7.18.tgz
+          cd Python-2.7.18
+          ./configure
+          make
+          sudo make install
+
 
 
 
